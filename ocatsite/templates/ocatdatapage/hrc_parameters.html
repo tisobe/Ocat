@@ -1,0 +1,16 @@
+{% block hrc_parameters %}
+
+{% comment %} HRC Parameter Section. {% endcomment %}
+
+<h2>HRC Parameters</h2>
+
+<table>
+    <tr>
+        {% include "includes/jstag.html" with p1='hrc_timing_mode' p2='Timing Mode'         p3=gen_name.hrc_timing_mode %}
+        {% include "includes/jstag.html" with p1='hrc_zero_block'  p2=pname.hrc_zero_block  p3=gen_name.hrc_zero_block %}
+        {% include "includes/jstag.html" with p1='hrc_si_mode'     p2='SI Mode'             p3=gen_name.hrc_si_mode %}
+    </tr>
+<table>
+
+{% endblock %}
+

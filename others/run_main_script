@@ -1,0 +1,9 @@
+source /proj/sot/ska/bin/ska_envs.csh
+
+/proj/web-r2d2-v/lib/python2.7/site-packages/r2d2-v/others/find_planned_roll.py
+
+cd /proj/web-r2d2-v/lib/python2.7/site-packages/r2d2-v/; python  manage.py updates_sign_off
+cd /proj/web-r2d2-v/lib/python2.7/site-packages/r2d2-v/; python  manage.py create_schedule_table
+cd /proj/web-r2d2-v/lib/python2.7/site-packages/r2d2-v/; python  manage.py naggem
+cd /proj/web-r2d2-v/lib/python2.7/site-packages/r2d2-v/; python  manage.py find_scheduled_obs
+
