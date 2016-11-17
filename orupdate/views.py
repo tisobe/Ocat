@@ -4,7 +4,7 @@
 #                                                                                                       #
 #               author: t. isobe (tisobe@cfa.harvard.edu)                                               #
 #                                                                                                       #
-#               Last update: Oct 31, 2016                                                               #
+#               Last update: Nov 17, 2016                                                               #
 #                                                                                                       #
 #########################################################################################################
 
@@ -214,7 +214,7 @@ class orUpdate(View):
         self.submitter = request.user.username
 
 #-----------------------------------------------------
-#-----------------------------------------------------
+#-- the main part starts here                       --
 #-----------------------------------------------------
 
         try:
@@ -225,29 +225,35 @@ class orUpdate(View):
                 form = request.POST
             else:
                 form = request.GET
-    
+#
+#--- check any value (obsid, seq # etc) is submitted
+#    
+            achk = 0
+            if ('disp_obsid' in form) and (form['disp_obsid']):
+                if form['disp_obsid'] != '':
+                    achk = 1
+
+            if ('seqno' in form) and (form['seqno']):
+                if form['seqno'] != '':
+                    achk = 2
+
+            if ('prop_num' in form) and (form['prop_num']):
+                if form['prop_num'] != '':
+                    achk = 3
+
+            if ('user_id' in form) and (form['user_id']):
+                if form['user_id'] != '':
+                    achk = 4
+#
+#--- start checking what was requested
+#
             if ('check' in form) and (form['check']):
                 self.read_form_param(form)
 #
 #--- change of the user requested
 #
-                if form['check'] == 'Change':
+                if (achk == 0) and (form['check'] == 'Change'):
                     return HttpResponseRedirect('/accounts/login/?next=%s' % request.path)
-#
-#--- the case to bring up the observations of poc to the top
-#
-                elif form['check'] == 'Find Entries':
-    
-                    if self.nstd == '2':
-                        updates_list = oda.get_verified_cases()
-                    else:
-                        updates_list = self.extract_data_for_display()
-                        self.nstd = 1
-    
-                    self.poc = form['user_id']
-                    if self.poc != '':
-                        updates_list = self.reorder_by_poc(updates_list)
-                    self.poc = ''
 #
 #--- the case to order the observations by obsid
 #
@@ -276,63 +282,88 @@ class orUpdate(View):
                     updates_list = oda.get_verified_cases()
                     updates_list.reverse()
                     self.nstd = 2
-    
-                elif form['check'] == 'Submit':
 #
-#--- the case to display obsidrev under the same prop number
+#--- the case to display obsidrev under the same obsid
 #
+                elif achk == 1:
                     try:
-                        self.prop_num = form['prop_num']
-                        if self.prop_num == "":
-                            self.prop_num = form['prev_prop']
+                        self.disp_obsid = form['disp_obsid']
+                        if self.disp_obsid == '':
+                            self.disp_obsid = form['prev_obsid']
                     except:
-                        self.prop_num = form['prev_prop']
+                        self.disp_obsid = form['prev_obsid']
+    
+                    updates_list = self.extract_data_for_display()
 #
 #--- the case to display obsidrev under the sequence number
 #
+                elif achk == 2:
                     try:
                         self.seqno = form['seqno']
                         if self.seqno == "":
                             self.seqno = form['seqno']
                     except:
                         self.seqno = form['prev_seqno']
+    
+                    updates_list = self.extract_data_for_display()
+                    self.nstd = 1
+                    self.nstd = 1
 #
-#--- the case to display obsidrev under the same obsid
+#--- the case to display obsidrev under the same prop number
 #
+                elif achk == 3:
                     try:
-                        self.disp_obsid = form['disp_obsid']
-                        if self.disp_obsid == '':
-                             self.disp_obsid = form['prev_obsid']
+                        self.prop_num = form['prop_num']
+                        if self.prop_num == "":
+                            self.prop_num = form['prev_prop']
                     except:
-                        self.disp_obsid = form['prev_obsid']
+                        self.prop_num = form['prev_prop']
 
                     updates_list = self.extract_data_for_display()
                     self.nstd = 1
-
-                elif form['check'] == 'Standard':
+#
+#--- the case to bring up the observations of poc to the top
+#
+                elif achk == 4:
+    
+                    if self.nstd == '2':
+                        updates_list = oda.get_verified_cases()
+                    else:
+                        updates_list = self.extract_data_for_display()
+                        self.nstd = 1
+    
+                    self.poc = form['user_id']
+                    if self.poc != '':
+                        updates_list = self.reorder_by_poc(updates_list)
+                    self.poc = ''
 #
 #--- back to normal display
 #
+                elif form['check'] == 'Standard':
                     self.param_initialize()
-
+    
                     updates_list = self.extract_data_for_display()
                     updates_list = bubble_up_unsigned_off_entries(updates_list)
+    
+                wdict =  self.mk_data_dict(updates_list  )
+    
+                return render_to_response(self.template_name, wdict,  RequestContext(request))
 #
 #--- the case that the new sign off is submitted
 #
-                elif form['check'] == 'Update':
+            else:
+                self.read_form_param(form)
+                updates_list = self.extract_data_for_display()
     
-                    updates_list = self.extract_data_for_display()
-    
-                    self.update_sql_entries(updates_list, form)
+                chk = self.update_sql_entries(updates_list, form)
+                if chk > 0:
                     updates_list = self.extract_data_for_display()
                     updates_list = bubble_up_unsigned_off_entries(updates_list)
-
                 else:
                     pass
-
+    
                 wdict =  self.mk_data_dict(updates_list  )
-
+    
                 return render_to_response(self.template_name, wdict,  RequestContext(request))
 #
 #--- if something went wrong,  display the error page
@@ -644,6 +675,7 @@ class orUpdate(View):
         tail_list = ['gen', 'acis', 'si', 'verify']
         today     = ocf.today_date()
 
+        vchk = 0
         for ent in alist:
 
             if ent[4] != 'NA':          #---- verified by indicator
@@ -652,37 +684,40 @@ class orUpdate(View):
             obsidrev = ent[0]
             poc      = ent[6]
             obsidchk = obsidrev.replace('.', '_')
-
 #
 #--- check whether higher obsidrev is already verified. if so, do quick sign off
 #
             hchk = check_higher_obsidrev(obsidrev)
+            name = obsidchk + '_verify'
+            try:
+                dval = form[name]
+            except:
+                dval = ''
 
-            if hchk > 0:
-#
-#--- for this case, we need to check only verify case
-#
-                name     = obsidchk + '_verify'
-
-                try:
-                    submitter  = form[name]
-                    if submitter == '':
-                        continue
-                except:
-                    continue
-
-                if ent[1] == 'NA':                      #---- general
-                    ent[1] = submitter + ' ' + today
-
-                if ent[2] == 'NA':                      #---- acis
-                    ent[2] = submitter + ' ' + today
-
-                if ent[3] == 'NA':                      #---- si_mode
-                    ent[3] = submitter + ' ' + today
-
-                ent[4] = submitter + ' ' + today        #---- verified
+            if (hchk > 0) and (dval == 'verify'):
+                    if ent[1] == 'NA':                      #---- general
+                        ent[1] = self.submitter + ' ' + today
+    
+                    if ent[2] == 'NA':                      #---- acis
+                        ent[2] = self.submitter + ' ' + today
+    
+                    if ent[3] == 'NA':                      #---- si_mode
+                        ent[3] = self.submitter + ' ' + today
+    
+                    ent[4] = self.submitter + ' ' + today   #---- verified
 
             else:
+#
+#--- if verified is requested, check whether all entries are signed off before verified it
+#
+                dchk = 0
+                if (dval != '') and  (dval != 'NA'):
+                    for m in range(1, 4):
+                        if ent[m] == 'NA':
+                            dchk = 1
+                            break
+                if dchk > 0:
+                    break
 #
 #--- parameter name is something like 16259_002_gen (see tail_list above)
 #
@@ -705,20 +740,30 @@ class orUpdate(View):
 #
                         chk     = 1
                         k1      = k + 1
-                        val     = val + ' ' + today
+                        val     = self.submitter + ' ' + today
                         ent[k1] = val
 
                 if chk > 0:
 #
 #--- check whether we need to send email, and if so, send out email
 #
-                    data  = oda.extract_values_for_given_obsidrev(obsidrev)
-                    otype = data.req_type
-                    cle.send_or_email(otype, k1, ent,  poc, obsidrev)
+                    try:
+#
+#--- in some cases, an empty data table was created; so check that and
+#--- if that is the case, just skip sending out email
+#
+                        data  = oda.extract_values_for_given_obsidrev(obsidrev)
+                        otype = data.req_type
+                        cle.send_or_email(otype, k1, ent,  poc, obsidrev)
+                        vchk  = 1
+                    except:
+                        vchk  = 0
 #
 #--- update sql database
 #
             oda.add_to_updates_list(ent[0], ent[1], ent[2], ent[3], ent[4], ent[5], ent[6], ent[7], today)
+
+        return vchk
 
 
 ###########################################################################################

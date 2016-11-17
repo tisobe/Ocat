@@ -28,7 +28,7 @@ This file contains the table part of orupdate.html page
         the observations are either already approved or you are not POC of the observation, and
         you cannot approve them. If it is the latter, you need to change your user ID above, or go to:
         <a href='{{ durl }}/ocatdatapage/'>Ocat Data Page</a>
-        and approve observations indivisually.
+        and approve observations individually.
 
         Only those marked with <span style='background-color:#ADFF2F;color:#ADFF2F;'>___</span>
         will be automatically approved.
@@ -85,6 +85,12 @@ This file contains the table part of orupdate.html page
 
     {% ifequal ychk 1 %}
         <input type='submit' name='check' value='Approve All'>
+    {% else %}
+        {% ifequal ychk -1 %}
+            <p>
+                <b style='color:red'>The input formt seems wrong, please go back and re-enter.</b>
+            <p>
+        {% endifequal %}
     {% endifequal %}
     <input type='submit' name='check' value='Back To Front Page'>
 

@@ -12,7 +12,6 @@ This file contains the table part of orupdate.html page
         <th style='text-align:center;color:green;width:10%'>ACIS Obscat</th>
         <th style='text-align:center;color:green;width:10%'>SI Mode</th>
         <th style='text-align:center;color:green;width:10%'>Verified by</th>
-        <th style='text-align:center;color:green;width:10%'>&#160;</th>
         <th style='text-align:center;color:green;width:10%'>Note</th>
     </tr>
 {% comment %}
@@ -48,7 +47,7 @@ This file contains the table part of orupdate.html page
 
             <td style='text-align:center'> 
                 {% ifequal ent.1 'NA' %}
-                    <input type="text" size=10 name={{ ent.8 }} >
+                    <button type="submit" name={{ ent.8 }} value='sign off' >sign off</button>
                 {% else %}
                     {{ ent.1 }} 
                 {% endifequal %}
@@ -56,7 +55,7 @@ This file contains the table part of orupdate.html page
 
             <td style='text-align:center'> 
                 {% ifequal ent.2 'NA' %}
-                    <input type="text" size=10 name={{ ent.9 }}>
+                    <button type="submit" name={{ ent.9 }} value='sign off' >sign off</button>
                 {% else %}
                     {{ ent.2 }} 
                 {% endifequal %}
@@ -64,7 +63,7 @@ This file contains the table part of orupdate.html page
 
             <td style='text-align:center'> 
                 {% ifequal ent.3 'NA' %}
-                    <input type="text" size=10 name={{ ent.10 }} >
+                    <button type="submit" name={{ ent.10 }} value='sign off' >sign off</button>
                 {% else %}
                     {{ ent.3 }} 
                 {% endifequal %}
@@ -72,17 +71,9 @@ This file contains the table part of orupdate.html page
 
             <td style='text-align:center'> 
                 {% ifequal ent.4 'NA' %}
-                    <input type="text" size=10 name={{ ent.11 }}>
+                    <button type="submit" name={{ ent.11 }} value='verify' >verify</button>
                 {% else %}
                     {{ ent.4 }} 
-                {% endifequal %}
-            </td>
-
-            <td style='text-align:center'> 
-                {% ifequal ent.4 'NA' %}
-                    <input type="submit" name='check' value="Update">
-                {% else %}
-                    &#160;
                 {% endifequal %}
             </td>
 

@@ -4,7 +4,7 @@
 #                                                                                                       #
 #               author: t. isobe (tisobe@cfa.harvard.edu)                                               #
 #                                                                                                       #
-#               Last update: Oct 31, 2016                                                               #
+#               Last update: Nov 17, 2016                                                               #
 #                                                                                                       #
 #########################################################################################################
 
@@ -147,7 +147,7 @@ class ocatExpress(View):
             return render_to_response(self.not_found_page,  RequestContext(request))
 
 #----------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------
+#-- post: "Post"  submission                                                     --
 #----------------------------------------------------------------------------------
 
     def post(self, request, *args, **kwargs):
@@ -198,7 +198,7 @@ class ocatExpress(View):
             return HttpResponseRedirect('/ocatmain/')
 
 #----------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------
+#-- main part starts here                                                       ---
 #----------------------------------------------------------------------------------
 
         try:
@@ -211,12 +211,19 @@ class ocatExpress(View):
                 form = request.GET
     
             self.submitter = form['submitter']
-    
+#
+#--- check whether any obsid submitted
+# 
+            achk = 0
+            if ('obsid_list' in form) and (form['obsid_list']):
+                if form['obsid_list'] != '':
+                    achk = 1
+
             if ('check' in form) and (form['check']):
 #
 #--- submitted the list of obsids and go to the check page
 #
-                if form['check'] == 'Submit':
+                if achk > 0:
                     input_list = form['obsid_list']
                     self.check_requested_list(input_list)
                     wdict = self.make_dict(2)
@@ -238,7 +245,7 @@ class ocatExpress(View):
 #
 #--- change the user id
 #
-                elif form['check'] == 'Change':
+                elif (achk == 0) and (form['check'] == 'Change'):
                     return HttpResponseRedirect('/accounts/login/?next=%s' % request.path)
     
                     s_user = request.user.username + '_session'
@@ -302,10 +309,15 @@ class ocatExpress(View):
         output: wdict           --- a parameter dictionary
 
         """
+        ycnt = 0
         ychk = 0
         for ent in self.entry_list:
+            ycnt += 1
             if ent[7] == 'y':
                 ychk = 1
+
+        if ycnt == 0:
+            ychk = -1
 
         wdict = {
             'durl'          : durl,

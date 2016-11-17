@@ -6,7 +6,7 @@
 #                                                                                                           #
 #           author: t. isobe (tisobe@cfa.harvard.edu)                                                       #
 #                                                                                                           #
-#           Last Update: Oct 27, 2016                                                                       #
+#           Last Update: Nov 10, 2016                                                                       #
 #                                                                                                           #
 #############################################################################################################
 
@@ -1269,7 +1269,7 @@ def modify_date_format(date):
 #-- day part
 #
     val   = int(float(atemp[1]))
-    day   = atemp[1]
+    day   = str(val)
     if val < 10:
         day = '0' + day
 #
@@ -1311,6 +1311,7 @@ def modify_date_format_to_num(date):
         lmon = '0' + lmon
 
     day = int(float(lday))
+    lday = str(day)
     if day < 10:
         lday = '0' + lday
 

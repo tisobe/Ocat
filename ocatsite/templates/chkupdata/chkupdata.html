@@ -74,6 +74,15 @@ This is Parameter Check Page frame work page. It is built on "base.html."
 
 {%include 'chkupdata/remarks_comments_section.html' %}
 
+<div style='padding-top:20px;'>
+<p><b>Legend</b></p>
+<ul>
+<li><span style='color:yellow;background-color:yellow;'>color</span>: a new value requested.</li>
+<li><span style='color:#ADFF2F;background-color:#ADFF2F;'>color</span>: the database value is same as the requested value.</li>
+<li><span style='color:#FF00FF;background-color:#FF00FF;'>color</span>: the database value is different from the requested value.</li>
+</ul>
+</div>
+
 <table border = 0 style='width:100%; padding-top:20px;'>
     <tr>
     <td style='text-align:right'>

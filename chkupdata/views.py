@@ -4,7 +4,7 @@
 #                                                                                                       #
 #           author: t. isobe (tisobe@cfa.harvard.edu)                                                   #
 #                                                                                                       #
-#           last update: Oct 25, 2016                                                                   #
+#           last update: Nov 14, 2016                                                                   #
 #                                                                                                       #
 #########################################################################################################
 
@@ -51,13 +51,11 @@ for ent in data:
 #
 sys.path.append(base_dir)
 sys.path.append(mta_dir)
-
 #
 #--- there are many form of 'NONE'
 #
-non_list      = (None, 'NONE', 'None', 'No', 'NO', 'N', 'NA', 'NULL', '\s+', '')
-
-m_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+non_list = (None, 'NONE', 'None', 'No', 'NO', 'N', 'NA', 'NULL', '\s+', '')
+m_list   = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 #----------------------------------------------------------------------------------
 #-- chkUpData: the class which starts Parameter Check Page                      ---
@@ -99,11 +97,9 @@ class chkUpData(View):
             try:
                 if request.session[s_user] != 'yes':
                     if not request.user.is_authenticated():
-                        #return HttpResponseRedirect('/accounts/login/?next=%s' % request.path)
                         return HttpResponseRedirect('/accounts/login/?next=%s' % '/ocatmain/')
             except:
                 if not request.user.is_authenticated():
-                    #return HttpResponseRedirect('/accounts/login/?next=%s' % request.path)
                     return HttpResponseRedirect('/accounts/login/?next=%s' % '/ocatmain/')
 #
 #--- every time the page is accessed/upated, the expiration clock is reset to the full length
@@ -112,7 +108,6 @@ class chkUpData(View):
             request.session.set_expiry(self.time_exp)
         else:
             if not request.user.is_authenticated():
-                #return HttpResponseRedirect('/accounts/login/?next=%s' % request.path)
                 return HttpResponseRedirect('/accounts/login/?next=%s' % '/ocatmain/')
 
             s_user = request.user.username + '_session'
@@ -211,7 +206,6 @@ class chkUpData(View):
                 ordr = chkval['ordr']
             except:
                 ordr = 0
-    
             awin_list   = self.created_data_list('awin', ordr)
             awin_change = find_modified_entries(awin_list)
     
@@ -302,14 +296,13 @@ class chkUpData(View):
             req_ordr = 0
         self.obs_dict['roll_ordr'] = [org_ordr, req_ordr]
     
-#     org_ordr = self.obs_dict['ordr'][0]
-#        req_ordr = self.obs_dict['ordr'][1]
-#        if self.obs_dict['spwindow_flag'][0] in non_list:
-#            org_ordr = 0
-#        if self.obs_dict['spwindow_flag'][1] in non_list:
-#            req_ordr = 0
-#        self.obs_dict['ordr'] = [org_ordr, req_ordr]
-
+        org_ordr = self.obs_dict['ordr'][0]
+        req_ordr = self.obs_dict['ordr'][1]
+        if self.obs_dict['spwindow_flag'][0] in non_list:
+            org_ordr = 0
+        if self.obs_dict['spwindow_flag'][1] in non_list:
+            req_ordr = 0
+        self.obs_dict['ordr'] = [org_ordr, req_ordr]
 #
 #--- get the current database values
 #
@@ -397,6 +390,7 @@ class chkUpData(View):
         chkval['seq_nbr']  = self.obs_dict['seq_nbr'][0]
         chkval['prop_num'] = self.obs_dict['prop_num'][0]
         chkval['target']   = self.obs_dict['targname'][0]
+        chkval['asis']     = self.obs_dict['asis'][0]
         chkval['poc']      = self.obs_dict['poc'][0]
         chkval['ao_nbr']   = self.ocat_dict['obs_ao_str']
         chkval['pi_name']  = self.ocat_dict['pi_name']

@@ -4,7 +4,7 @@
 #                                                                                                       #
 #               author: t. isobe (tisobe@cfa.harvard.edu)                                               #
 #                                                                                                       #
-#               Last update: Oct 31, 2016                                                               #
+#               Last update: Nov 17, 2016                                                               #
 #                                                                                                       #
 #########################################################################################################
 
@@ -212,7 +212,7 @@ class ocatMain(View):
         self.setup_params()
 
 #-----------------------------------------------------
-#-----------------------------------------------------
+#-- main part starts here                           --
 #-----------------------------------------------------
 
         try:
@@ -225,23 +225,36 @@ class ocatMain(View):
 #
             [durl, section, obs_list, vlist] = self.recover_data(form)
             self.setup_params()
-
+#
+#--- usint and poc have different html pages
+#
             if self.group == 'usint':
                 wtemplate = self.template_name2
             else:
                 wtemplate = self.template_name
 #
-#--- check whether the user still using the default password
+#--- check whether the user is still using the default password
 #
             usert = User.objects.get(username=self.submitter)
             if usert.check_password(test):
-                change_p = 1
+                change_p = 1                        #--- the user is still using the default password
             else:
                 change_p = 0
 #
+#--- check whether obsid is submitted. then don't go to change user/password site
+#
+            achk = 0
+            if ('ocat_obsid' in form) and (form['ocat_obsid']):
+                if (form['ocat_obsid']) != '':
+                    achk = 1                        #--- Ocat Data Page is requested
+
+            if ('chk_obsid' in form) and (form['chk_obsid']):
+                if (form['chk_obsid']) != '':
+                    achk = 2                        #--- Chkupdata Page is requested
+#
 #--- changing the user or changin the password
 #
-            if (('check0' in form) and (form['check0'])) or (change_p == 1):
+            if ((achk == 0) and ('check0' in form) and (form['check0'])) or (change_p == 1):
 #
 #--- escape from change password page to change user page
 #
@@ -313,45 +326,29 @@ class ocatMain(View):
 #
 #--- ocat data page
 #
-            elif ('check1' in form) and (form['check1']):
-                if form['check1'] == 'Submit':
-                    if form['ocat_obsid']:
-                        obsid = form['ocat_obsid']
-                        return HttpResponseRedirect('/ocatdatapage/%s' % obsid)
-#
-#---- if obsid is not given, just stay on the main page
-#
-                    else:
-                        wdict = self.mk_dict()
-                        return render_to_response(wtemplate, wdict, RequestContext(request))
-
+            elif achk == 1:
+                obsid = form['ocat_obsid']
+                return HttpResponseRedirect('/ocatdatapage/%s' % obsid)
 #
 #--- chkupdata page
 #
-            elif('check2' in form) and (form['check2']):
-                if form['chk_obsid']:
-                    obsid = form['chk_obsid']
-                    ver   = form['chk_ver']
+            elif achk == 2:
+                obsid = form['chk_obsid']
+                ver   = form['chk_ver']
 #
 #--- open_chkupdata returns either parameters or a list of possible choices of the data
 #
-                    vobs  = self.open_chkupdata(obsid, ver)
+                vobs  = self.open_chkupdata(obsid, ver)
 #
 #--- if only obsid is given for chkupdata page choice, it will display
 #--- a list of possible choices
 #
-                    if isinstance(vobs, list):
+                if isinstance(vobs, list):
 
-                        wdict = self.mk_dict(vlist = vobs)
-                        return render_to_response(wtemplate, wdict, RequestContext(request))
-                    else:
-                        return HttpResponseRedirect('/chkupdata/%s' % vobs)
-#
-#---- if obsid is not given, just stay on the main page
-#
-                else:
-                    wdict = self.mk_dict()
+                    wdict = self.mk_dict(vlist = vobs)
                     return render_to_response(wtemplate, wdict, RequestContext(request))
+                else:
+                    return HttpResponseRedirect('/chkupdata/%s' % vobs)
 #
 #--- display a page with all planned observations
 #
@@ -367,7 +364,7 @@ class ocatMain(View):
 
                 return render_to_response(wtemplate, wdict, RequestContext(request))
 #
-#--- the first time that the page is called
+#--- the first time that the page is called or empty submission is requesrted
 #
             else:
                 wdict = self.mk_dict()

@@ -29,8 +29,8 @@
         <tr>
             <th>POC User  Name: </th>
             <th style='background-color:lime;text-align:center'>{{ submitter }}</th>
-            <td style='text-align:center;'><input type='submit' name='check0' value='Change User'> 
-            / <input type='submit' name='check0' value='Change Password'></td>
+            <td style='text-align:center;'><button type='submit' name='check0' value='Change User'>Change User</button> 
+            / <button type='submit' name='check0' value='Change Password'>Change Password</button></td>
             {% ifnotequal pcomment '' %}
                 <td style='color:red;'><b>{{ pcomment }}</b></td>
             {% endifnotequal %}
